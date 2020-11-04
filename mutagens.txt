@@ -1,0 +1,19 @@
+# Mutagen puzzle
+# Octothorpe at the start of the string denotes comments
+#
+Echo-1 C1 RT J6 -II -KC -M9
+Echo-2 JL UF PF II UQ
+Echo-3 Y7 Z5 UF P7 II -PF -JL
+Echo-4 J6 JL RB -RE -UQ -KC -UF
+Exitus-1 J6 UF C1 RE Y7 II UQ Z5 P7
+Helicon-1 PF J6 UF C1 RE UQ -P7 -VM
+Helicon-2 C1 RE Y7 -UQ -Z5
+Helicon-3 RE JL C1 -PF -II
+Io-1 RE RT UF -Z5
+Io-2 GH Z5 IO P7 RB -J6 -UF -Y7 -KC
+Io-3 JL LN PF UF
+Ovid-1 VM Z5 GH C1 II -M9 -LN
+Ovid-2 GH RE PF RT C1 -VM
+Ovid-3 KC PF JL UF P7 -J6 -Y7
+Solis-1 JL PF RE Y7 -Z5
+Solis-2 RB M9 IO -RT -IC -C1 -VM
