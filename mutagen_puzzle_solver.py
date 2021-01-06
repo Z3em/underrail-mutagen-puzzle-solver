@@ -5,6 +5,7 @@ import itertools
 import queue
 import time
 from functools import total_ordering
+import os
 
 threadNumber = 2
 maxIndexLength = 5
@@ -83,7 +84,8 @@ class CheckCompoundThread(Thread):
                     print("Success! Solution for Exitus compound found:")
                     print(self.exitus)
                     print(compound)
-                    sys.exit()
+                    os._exit(1)
+                    #sys.exit()
                 else:
                     print("Fail")
                 for i in range(len(self.reagents)):
