@@ -73,8 +73,7 @@ class CheckCompoundThread(Thread):
         indexLength = 0
         while (indexLength <= self.maxIndexLength):
             if (not self.reagentIndexQueue.empty()):
-                priorityIndexSequence = self.reagentIndexQueue.get()
-                indexSequence = priorityIndexSequence.sequence
+                indexSequence = self.reagentIndexQueue.get().sequence
                 indexLength = len(indexSequence)
                 if (indexLength > self.maxIndexLength):
                     return
@@ -85,7 +84,6 @@ class CheckCompoundThread(Thread):
                     print(self.exitus)
                     print(compound)
                     os._exit(0)
-                    #sys.exit()
                 else:
                     print("Fail")
                 for i in range(len(self.reagents)):
