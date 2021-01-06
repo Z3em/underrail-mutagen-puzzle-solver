@@ -84,7 +84,7 @@ class CheckCompoundThread(Thread):
                     print("Success! Solution for Exitus compound found:")
                     print(self.exitus)
                     print(compound)
-                    os._exit(1)
+                    os._exit(0)
                     #sys.exit()
                 else:
                     print("Fail")
@@ -235,3 +235,4 @@ if __name__ == "__main__":
 
     print("Checking compounds...")
     FindExitus2(reagents, exitus, threadNumber, maxIndexLength)
+    sys.exit(100)
