@@ -182,6 +182,36 @@ def FindExitus2(reagents, exitus, threadNumber, maxIndexLength):
     return
 
 
+def PruneImpossibleReagents(reagents, exitus):
+    negatedAtoms = []
+    negatedAtoms.extend(exitus.positiveAtoms)
+    pruningFinished = True
+    # Add all negative atoms in reagents to the list of potentially negated atoms
+    for r in reagents:
+        for a in r.negativeAtoms:
+            if not a in negatedAtoms:
+                negatedAtoms.append(a)
+    # Find all reagents that have atoms can't be negated and aren't present in Exitus
+    reagentsToPrune = list()
+    for i in range(len(reagents)):
+        pruningNecessary = False
+        for a in reagents[i].positiveAtoms:
+            if not a in negatedAtoms:
+                pruningNecessary = True
+                break
+        if pruningNecessary:
+            pruningFinished = False
+            reagentsToPrune.append(i)
+    # Purge all found reagents
+    for i in reversed(reagentsToPrune):
+        reagents.pop(i)
+    # If some reagents were pruned call the function recursively, otherwise return
+    if pruningFinished:
+        return
+    else:
+        PruneImpossibleReagents(reagents, exitus)
+
+
 if __name__ == "__main__":
     if len(sys.argv) < 2:
         sys.exit("Error: No file specified")
@@ -189,16 +219,12 @@ if __name__ == "__main__":
     reagents = ParseFile(sys.argv[1])
     exitus = GetExitus(reagents)
     print(exitus)
+    PruneImpossibleReagents(reagents, exitus)
 
     if (len(sys.argv) >= 3):
         maxCompoundLength = int(sys.argv[2])
     if (len(sys.argv) >= 4):
         threadNumber = int(sys.argv[3])
-
-    myExitus = BuildCompound(reagents, [4, 5, 1, 2])
-    print(exitus)
-    print(myExitus)
-    print(exitus == myExitus)
 
     print("Checking compounds...")
     FindExitus2(reagents, exitus, threadNumber, maxIndexLength)
