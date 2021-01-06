@@ -77,6 +77,16 @@ class CheckCompoundThread(Thread):
                 indexLength = len(indexSequence)
                 if (indexLength > self.maxIndexLength):
                     return
+#                # Check if sequence has duplicates
+#                sequenceHasDuplicates = False
+#                for i in range(1, indexLength):
+#                    if indexSequence[i] == indexSequence[i-1]:
+#                        sequenceHasDuplicates = True
+#                        break
+#                if sequenceHasDuplicates:
+#                    print("Duplicate dumped")
+#                    pass
+
                 compound = BuildCompound(self.reagents, indexSequence)
                 print("Checking "+str(compound))
                 if (compound == self.exitus):
@@ -87,6 +97,10 @@ class CheckCompoundThread(Thread):
                 else:
                     print("Fail")
                 for i in range(len(self.reagents)):
+                    # Dump the new sequence if it contains a duplicate
+                    if (len(indexSequence)>0):
+                        if (i == indexSequence[len(indexSequence) - 1]):
+                            pass
                     newSequence = indexSequence.copy()
                     newSequence.append(i)
                     self.reagentIndexQueue.put(PriorityReagentIndexSequence(
@@ -210,6 +224,7 @@ def PruneImpossibleReagents(reagents, exitus):
         return
     else:
         PruneImpossibleReagents(reagents, exitus)
+        return
 
 
 if __name__ == "__main__":
