@@ -71,32 +71,33 @@ class CheckCompoundThread(Thread):
 
     def run(self):
         indexLength = 0
-        while (indexLength <= self.maxIndexLength):
-            if (not self.reagentIndexQueue.empty()):
-                indexSequence = self.reagentIndexQueue.get().sequence
-                indexLength = len(indexSequence)
-                if (indexLength > self.maxIndexLength):
-                    return
-                compound = BuildCompound(self.reagents, indexSequence)
-                print("Checking "+str(compound))
-                if (compound == self.exitus):
-                    print("Success! Solution for Exitus compound found:")
-                    print(self.exitus)
-                    print(compound)
-                    os._exit(0)
-                else:
-                    print("Fail")
-                for i in range(len(self.reagents)):
-                    # Dump the new sequence if it contains a duplicate
-                    if (len(indexSequence) > 0):
-                        if (i == indexSequence[len(indexSequence) - 1]):
-                            pass
-                    newSequence = indexSequence.copy()
-                    newSequence.append(i)
-                    self.reagentIndexQueue.put(PriorityReagentIndexSequence(
-                        indexLength, newSequence))
+        while (not self.reagentIndexQueue.empty()):
+            indexSequence = self.reagentIndexQueue.get().sequence
+            indexLength = len(indexSequence)
+            compound = BuildCompound(self.reagents, indexSequence)
+            print("Checking "+str(compound))
+            if (compound == self.exitus):
+                print("Success! Solution for Exitus compound found:")
+                print(self.exitus)
+                print(compound)
+                os._exit(0)
             else:
-                time.sleep(0.1)
+                print("Fail")
+            for i in range(len(self.reagents)):
+                if (indexLength > 0):
+                    # Dump the sequence if its length is over the specified limit
+                    if (indexLength >= maxIndexLength):
+                        time.sleep(0)
+                        continue
+                    # Dump the new sequence if it contains a duplicate
+                    if (i == indexSequence[indexLength - 1]):
+                        time.sleep(0)
+                        continue
+                newSequence = indexSequence.copy()
+                newSequence.append(i)
+                self.reagentIndexQueue.put(
+                    PriorityReagentIndexSequence(indexLength, newSequence))
+        return
 
 
 @total_ordering
@@ -180,6 +181,7 @@ def FindExitus2(reagents, exitus, threadNumber, maxIndexLength):
             reagents, exitus, reagentIndexQueue, maxIndexLength))
     for t in threads:
         t.start()
+        time.sleep(0.1)
     for t in threads:
         t.join()
     print("Failed to construct Exitus-2!")
@@ -227,7 +229,7 @@ if __name__ == "__main__":
     PruneImpossibleReagents(reagents, exitus)
 
     if (len(sys.argv) >= 3):
-        maxCompoundLength = int(sys.argv[2])
+        maxIndexLength = int(sys.argv[2])
     if (len(sys.argv) >= 4):
         threadNumber = int(sys.argv[3])
 
