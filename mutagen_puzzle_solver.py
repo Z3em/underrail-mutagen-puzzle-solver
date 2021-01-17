@@ -5,10 +5,8 @@ import itertools
 import queue
 import time
 from functools import total_ordering
-import os
-
-threadNumber = 2
-maxIndexLength = 5
+import logging
+import argparse
 
 
 class Compound:
@@ -87,22 +85,20 @@ class CheckCompoundThread(Thread):
             indexSequence = self.reagentIndexQueue.get().sequence
             indexLength = len(indexSequence)
             compound = BuildCompound(self.reagents, indexSequence)
-            print("Checking "+str(compound))
+            logging.info("Checking %s", str(compound))
             if (compound == self.exitus):
                 self.solution.Save(compound)
-                print("Success!")
+                logging.info("Success!")
                 return
             else:
-                print("Fail")
+                logging.info("Fail")
             for i in range(len(self.reagents)):
                 if (indexLength > 0):
                     # Dump the sequence if its length is over the specified limit
-                    if (indexLength >= maxIndexLength):
-                        # time.sleep(0)
+                    if (indexLength >= self.maxIndexLength):
                         continue
                     # Dump the new sequence if it contains a duplicate
                     if (i == indexSequence[indexLength - 1]):
-                        # time.sleep(0)
                         continue
                 newSequence = indexSequence.copy()
                 newSequence.append(i)
@@ -144,7 +140,8 @@ def GetExitusIndex(reagents):
     for i in range(len(reagents)):
         if (reagents[i].name.lower() == "exitus-1" or reagents[i].name.lower() == "exitus"):
             return i
-    sys.exit("Error: Unable to find Exitus-1 reagent")
+    logging.error("Unable to find Exitus-1 reagent")
+    sys.exit(100)
 
 
 def GetExitus(reagents):
@@ -156,14 +153,16 @@ def ParseFile(fileName):
     try:
         file = open(fileName)
     except:
-        sys.exit("Error: File \"" + fileName + "\" not found")
+        logging.error("File \"%s\" not found", fileName)
+        sys.exit()
     for line in file:
         if line[0] != '#':
             splitString = line.split()
             for r in reagentsRaw:
                 if splitString[0] == r[0]:
-                    sys.exit("Error: Reagent name " +
-                             r[0]+" is encountered in the list more than once")
+                    logging.error(
+                        "Reagent name %s is encountered in the list more than once", r[0])
+                    sys.exit()
             reagentsRaw.append(splitString)
     file.close()
     reagents = []
@@ -231,25 +230,41 @@ def PruneImpossibleReagents(reagents, exitus):
 
 
 if __name__ == "__main__":
-    if len(sys.argv) < 2:
-        sys.exit("Error: No file specified")
+    parser = argparse.ArgumentParser()
+    verbosity = parser.add_mutually_exclusive_group()
+    parser.add_argument("filename", type=str,
+                        help="specify reagent list location")
+    verbosity.add_argument("-v", "--verbose", help="increase output verbosity",
+                           action="store_true")
+    verbosity.add_argument("-q", "--quiet", help="decrease output verbosity",
+                           action="store_true")
+    parser.add_argument("-t", "--threads", type=int, default=4,
+                        help="specify the number of threads used")
+    parser.add_argument("-l", "--length", type=int, default=5,
+                        help="specify the maximum number of reagents to be used in a compound")
+    args = parser.parse_args()
 
-    reagents = ParseFile(sys.argv[1])
+    if args.verbose:
+        loglevel = logging.INFO
+    else:
+        loglevel = logging.WARNING
+    logging.basicConfig(format='%(levelname)s:%(message)s', level=loglevel)
+
+    reagents = ParseFile(args.filename)
     exitus = GetExitus(reagents)
-    print(exitus)
+    logging.info("Exitus-1 found")
+    logging.info(exitus)
     PruneImpossibleReagents(reagents, exitus)
 
-    if (len(sys.argv) >= 3):
-        maxIndexLength = int(sys.argv[2])
-    if (len(sys.argv) >= 4):
-        threadNumber = int(sys.argv[3])
+    logging.info("Checking compounds...")
+    solution = FindExitus2(reagents, exitus, args.threads, args.length)
 
-    print("Checking compounds...")
-    solution = FindExitus2(reagents, exitus, threadNumber, maxIndexLength)
     if solution.isFound:
-        print("Exitus-2 constructed:")
-        print(exitus)
+        if not args.quiet:
+            print("Exitus-2 successfully constructed")
+            print(exitus)
         print(solution.compound)
     else:
-        print("Failed to construct Exitus-2")
+        if not args.quiet:
+            print("Failed to construct Exitus-2")
     sys.exit(0)
