@@ -190,9 +190,7 @@ def FindExitus2(reagents, exitus, threadNumber, maxIndexLength):
     for i in range(threadNumber):
         threads.append(CheckCompoundThread(
             reagents, exitus, reagentIndexQueue, maxIndexLength, solution))
-    for t in threads:
-        t.start()
-        time.sleep(0.1)
+        threads[i].start()
     for t in threads:
         t.join()
     return solution
