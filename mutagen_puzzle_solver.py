@@ -230,18 +230,19 @@ def PruneImpossibleReagents(reagents, exitus):
 
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser()
+    parser = argparse.ArgumentParser(
+        description="Automated mutithreaded solver for mutagen puzzle")
     verbosity = parser.add_mutually_exclusive_group()
-    parser.add_argument("filename", type=str,
-                        help="specify reagent list location")
+    parser.add_argument("file", type=str,
+                        help="path to reagent list")
     verbosity.add_argument("-v", "--verbose", help="increase output verbosity",
                            action="store_true")
     verbosity.add_argument("-q", "--quiet", help="decrease output verbosity",
                            action="store_true")
     parser.add_argument("-t", "--threads", type=int, default=4,
-                        help="specify the number of threads used")
+                        help="specify the number of threads used (default 4)")
     parser.add_argument("-l", "--length", type=int, default=5,
-                        help="specify the maximum number of reagents to be used in a compound")
+                        help="specify the maximum number of reagents to be used in a compound (default 5)")
     args = parser.parse_args()
 
     if args.verbose:
@@ -250,7 +251,7 @@ if __name__ == "__main__":
         loglevel = logging.WARNING
     logging.basicConfig(format='%(levelname)s:%(message)s', level=loglevel)
 
-    reagents = ParseFile(args.filename)
+    reagents = ParseFile(args.file)
     exitus = GetExitus(reagents)
     logging.info("Exitus-1 found")
     logging.info(exitus)
