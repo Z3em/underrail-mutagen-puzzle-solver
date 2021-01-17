@@ -60,6 +60,7 @@ class Reagent(Compound):
             negativeAtomsString += ("-"+a+" ")
         return (super().__str__()+negativeAtomsString)
 
+
 class Solution:
     def __init__(self):
         self.isFound = False
@@ -67,6 +68,7 @@ class Solution:
     def Save(self, exitus2):
         self.isFound = True
         self.compound = exitus2
+
 
 class CheckCompoundThread(Thread):
     def __init__(self, reagents, exitus, reagentIndexQueue, maxIndexLength, solution):
@@ -96,11 +98,11 @@ class CheckCompoundThread(Thread):
                 if (indexLength > 0):
                     # Dump the sequence if its length is over the specified limit
                     if (indexLength >= maxIndexLength):
-                        #time.sleep(0)
+                        # time.sleep(0)
                         continue
                     # Dump the new sequence if it contains a duplicate
                     if (i == indexSequence[indexLength - 1]):
-                        #time.sleep(0)
+                        # time.sleep(0)
                         continue
                 newSequence = indexSequence.copy()
                 newSequence.append(i)
