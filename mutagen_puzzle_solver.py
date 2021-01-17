@@ -60,38 +60,47 @@ class Reagent(Compound):
             negativeAtomsString += ("-"+a+" ")
         return (super().__str__()+negativeAtomsString)
 
+class Solution:
+    def __init__(self):
+        self.isFound = False
+
+    def Save(self, exitus2):
+        self.isFound = True
+        self.compound = exitus2
 
 class CheckCompoundThread(Thread):
-    def __init__(self, reagents, exitus, reagentIndexQueue, maxIndexLength):
+    def __init__(self, reagents, exitus, reagentIndexQueue, maxIndexLength, solution):
         Thread.__init__(self)
         self.reagents = reagents
         self.exitus = exitus
         self.reagentIndexQueue = reagentIndexQueue
         self.maxIndexLength = maxIndexLength
+        self.solution = solution
 
     def run(self):
         indexLength = 0
         while (not self.reagentIndexQueue.empty()):
+            if self.solution.isFound:
+                return
             indexSequence = self.reagentIndexQueue.get().sequence
             indexLength = len(indexSequence)
             compound = BuildCompound(self.reagents, indexSequence)
             print("Checking "+str(compound))
             if (compound == self.exitus):
-                print("Success! Solution for Exitus compound found:")
-                print(self.exitus)
-                print(compound)
-                os._exit(0)
+                self.solution.Save(compound)
+                print("Success!")
+                return
             else:
                 print("Fail")
             for i in range(len(self.reagents)):
                 if (indexLength > 0):
                     # Dump the sequence if its length is over the specified limit
                     if (indexLength >= maxIndexLength):
-                        time.sleep(0)
+                        #time.sleep(0)
                         continue
                     # Dump the new sequence if it contains a duplicate
                     if (i == indexSequence[indexLength - 1]):
-                        time.sleep(0)
+                        #time.sleep(0)
                         continue
                 newSequence = indexSequence.copy()
                 newSequence.append(i)
@@ -173,19 +182,19 @@ def BuildCompound(reagents, indexSequence):
 
 
 def FindExitus2(reagents, exitus, threadNumber, maxIndexLength):
+    solution = Solution()
     reagentIndexQueue = queue.PriorityQueue()
     reagentIndexQueue.put(PriorityReagentIndexSequence(0, []))
     threads = []
     for i in range(threadNumber):
         threads.append(CheckCompoundThread(
-            reagents, exitus, reagentIndexQueue, maxIndexLength))
+            reagents, exitus, reagentIndexQueue, maxIndexLength, solution))
     for t in threads:
         t.start()
         time.sleep(0.1)
     for t in threads:
         t.join()
-    print("Failed to construct Exitus-2!")
-    return
+    return solution
 
 
 def PruneImpossibleReagents(reagents, exitus):
@@ -234,5 +243,11 @@ if __name__ == "__main__":
         threadNumber = int(sys.argv[3])
 
     print("Checking compounds...")
-    FindExitus2(reagents, exitus, threadNumber, maxIndexLength)
-    sys.exit(100)
+    solution = FindExitus2(reagents, exitus, threadNumber, maxIndexLength)
+    if solution.isFound:
+        print("Exitus-2 constructed:")
+        print(exitus)
+        print(solution.compound)
+    else:
+        print("Failed to construct Exitus-2")
+    sys.exit(0)
